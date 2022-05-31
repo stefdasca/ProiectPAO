@@ -1,4 +1,5 @@
 package com.company;
+import com.company.connections.*;
 import com.company.employees.AuxiliaryEmployees;
 import com.company.employees.Teachers;
 import com.company.exceptions.InsufficientFundsException;
@@ -11,14 +12,44 @@ import com.company.services.WriteToAudit;
 import com.company.studentstuff.Events;
 import com.company.studentstuff.Grades;
 import com.company.studentstuff.Students;
+import com.mysql.cj.x.protobuf.MysqlxCrud;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    private static void ShowOptions() {
+        System.out.println("Selectati optiunea dorita");
+        System.out.println("1: Se adauga un elev");
+        System.out.println("2: Se adauga un profesor");
+        System.out.println("3: Se adauga un angajat");
+        System.out.println("4: Se adauga un laborator");
+        System.out.println("5: Se adauga o sala de clasa");
+        System.out.println("6: Se adauga un eveniment");
+        System.out.println("7: Se actualizeaza bugetul scolii");
+        System.out.println("8: Se afiseaza fondul de salarii al scolii");
+        System.out.println("9: Se afiseaza bugetul necesar al scolii");
+        System.out.println("10: Se actualizeaza un elev");
+        System.out.println("11: Se actualizeaza un angajat");
+        System.out.println("12: Se actualizeaza o sala");
+        System.out.println("13: Se actualizeaza un eveniment");
+        System.out.println("14: Se afiseaza elevii");
+        System.out.println("15: Se afiseaza angajatii");
+        System.out.println("16: Se afiseaza salile");
+        System.out.println("17: Se afiseaza evenimentele");
+        System.out.println("18: Se sterge un elev");
+        System.out.println("19: Se sterge un angajat");
+        System.out.println("20: Se sterge o sala");
+        System.out.println("21: Se sterge un eveniment");
+        System.out.println("22: Se iese din meniu");
+    }
+
+    public static void main(String[] args) throws IOException, SQLException {
         School scoala = new School();
 
         WriteToAudit audit = new WriteToAudit();
@@ -39,71 +70,194 @@ public class Main {
 
         WriteInfo wr = new WriteInfo();
 
-        Students s1 = scoala.createStudent("Alexandru", "Georgescu");
-        wr.printStudent(s1);
-        audit.WriteToAudit("Student info was printed");
-//        Students s2 = scoala.createStudent("Maria", "Popescu");
-//        Students s3 = scoala.createStudent("Anca", "Coman");
-//        Students s4 = scoala.createStudent("Radu", "Campeanu");
-//        Students s5 = scoala.createStudent("Bogdan", "Blejan");
+        Connection conn = DBConnection.getConnection();
+        CreateTable cr = CreateTable.getInstance();
+        InsertInTable insr = InsertInTable.getInstance();
+        UpdateTable upd = UpdateTable.getInstance();
+        ReadFromTable rd = ReadFromTable.getInstance();
+        DeleteInTable dl = DeleteInTable.getInstance();
 
-         Teachers t1 = scoala.createTeacher("Sergiu", "Nistor", 52, 5000, "Matematica");
-        wr.printTeacher(t1);
-        audit.WriteToAudit("Teacher info was printed");
-//        Teachers t2 = scoala.createTeacher("Maria", "Dragan", 48, 3800, "Engleza");
-//        Teachers t3 = scoala.createTeacher("Raluca", "Alexandrescu", 28, 4000, "Romana");
-//        Teachers t4 = scoala.createTeacher("Eugen", "Ionescu", 28, 3000, "Istorie");
-//        Teachers t5 = scoala.createTeacher("Nicusor", "Stanciu", 30, 2500, "Sport");
+        Scanner scanner = new Scanner(System.in);
 
-        AuxiliaryEmployees e1 = scoala.createWorker("Constantin", "Popa", 33, 2000, "Contabil");
-        wr.printAuxiliaryEmployee(e1);
-        audit.WriteToAudit("Auxiliary employee info was printed");
-//        AuxiliaryEmployees e2 = scoala.createWorker("Ecaterina", "Enaru", 52, 2400, "Bibliotecar");
-//        AuxiliaryEmployees e3 = scoala.createWorker("Carmen", "Ivan", 45, 4300, "Secretar");
-//        AuxiliaryEmployees e4 = scoala.createWorker("Letitia", "Romanita", 59, 4000, "Administrator");
-//        AuxiliaryEmployees e5 = scoala.createWorker("Dragos", "Sava", 41, 3500, "Instalator");
+        System.out.println("A mers conexiunea");
 
-        Laboratories lab1 = scoala.createLab(1, 20, 10, "Informatica");
-        wr.printLaboratories(lab1);
+        // cr.CreateTables();
+        System.out.println("A creat tabele");
+        // meniul
 
-        audit.WriteToAudit("Laboratory info was printed");
-//        Laboratories lab2 = scoala.createLab(2, 15, 15, "Informatica");
-//        Laboratories lab3 = scoala.createLab(3, 12, 12, "Chimie");
-//        Laboratories lab4 = scoala.createLab(4, 10, 10, "Biologie");
-//        Laboratories lab5 = scoala.createLab(5, 15, 18, "Fizica");
-
-        Classrooms c1 = scoala.createClass(1, 10, 10, 12, 'A');
-        wr.printClassrooms(c1);
-
-        audit.WriteToAudit("Classroom info was printed");
-//        Classrooms c2 = scoala.createClass(2, 10, 8, 5, 'B');
-//        Classrooms c3 = scoala.createClass(3, 4, 15, 8, 'A');
-//        Classrooms c4 = scoala.createClass(4, 8, 12, 11, 'C');
-
-//        scoala.addGrade("Alexandru", "Georgescu", 8.00);
-//        scoala.addGrade("Maria", "Popescu", 5.50);
-
-
-        scoala.updateBudget(100);
-
-        audit.WriteToAudit("Bem si 7 zile bem");
-        try {
-            scoala.addEvent("Excursie", 2000);
-            scoala.addEvent("Festivitate", 3000);
-            scoala.addEvent("Tabla", 1500);
-            scoala.addEvent("PC", 2000);
+        while(true)
+        {
+            ShowOptions();
+            int command = scanner.nextInt();
+            if(command == 1){
+                String name, surname;
+                name = scanner.nextLine();
+                surname = scanner.nextLine();
+                Students s = scoala.createStudent(name, surname);
+                stud.add(s);
+                wr.printStudent(s);
+                insr.AddStudent(s);
+                audit.WriteToAudit("Student info was printed");
+            }
+            if(command == 2){
+                String name, surname, subject;
+                int age, salary;
+                name = scanner.nextLine();
+                surname = scanner.nextLine();
+                age = scanner.nextInt();
+                salary = scanner.nextInt();
+                subject = scanner.nextLine();
+                Teachers t1 = scoala.createTeacher(name, surname, age, salary, subject);
+                wr.printTeacher(t1);
+                insr.AddEmployee(t1);
+                audit.WriteToAudit("Teacher info was printed");
+            }
+            if(command == 3) {
+                String name, surname, job;
+                int age, salary;
+                name = scanner.nextLine();
+                surname = scanner.nextLine();
+                age = scanner.nextInt();
+                salary = scanner.nextInt();
+                job = scanner.nextLine();
+                AuxiliaryEmployees e1 = scoala.createWorker(name, surname, age, salary, job);
+                wr.printAuxiliaryEmployee(e1);
+                insr.AddEmployee(e1);
+                audit.WriteToAudit("Auxiliary employee info was printed");
+            }
+            if(command == 4){
+                int number, length, width;
+                String subject;
+                number = scanner.nextInt();
+                length = scanner.nextInt();
+                width = scanner.nextInt();
+                subject = scanner.nextLine();
+                Laboratories lab1 = scoala.createLab(number, width, length, subject);
+                wr.printLaboratories(lab1);
+                insr.AddHall(lab1);
+                audit.WriteToAudit("Laboratory info was printed");
+            }
+            if(command == 5){
+                int number, length, width;
+                int classnumber;
+                char letter;
+                number = scanner.nextInt();
+                length = scanner.nextInt();
+                width = scanner.nextInt();
+                classnumber = scanner.nextInt();
+                letter = scanner.next().charAt(0);
+                Classrooms c1 = scoala.createClass(number, width, length, classnumber, letter);
+                wr.printClassrooms(c1);
+                insr.AddHall(c1);
+                audit.WriteToAudit("Classroom info was printed");
+            }
+            if(command == 6){
+                String type_event;
+                int sum;
+                type_event = scanner.nextLine();
+                sum = scanner.nextInt();
+                try{
+                    scoala.addEvent(type_event, sum);
+                    insr.AddEvent(new Events(type_event, sum));
+                    audit.WriteToAudit("Event added");
+                }
+                catch(InsufficientFundsException e){
+                    System.out.println("Ai nevoie de " + e.getAmount());
+                }
+            }
+            if(command == 7){
+                int sum;
+                sum = scanner.nextInt();
+                scoala.updateBudget(sum);
+                audit.WriteToAudit("Budget updated");
+            }
+            if(command == 8){
+                System.out.print("Fondul de salarii lunar al scolii este: ");
+                System.out.println(scoala.totalWage());
+            }
+            if(command == 9){
+                System.out.println(scoala.NecessaryFunds());
+            }
+            if(command == 10){
+                String nume;
+                int id;
+                nume = scanner.nextLine();
+                id = scanner.nextInt();
+                upd.UpdateStudent(nume, id);
+                audit.WriteToAudit("A student has been updated");
+            }
+            if(command == 11) {
+                int age, salary, id;
+                age = scanner.nextInt();
+                salary = scanner.nextInt();
+                id = scanner.nextInt();
+                upd.UpdateEmployee(age, salary, id);
+                audit.WriteToAudit("An employee has been updated");
+            }
+            if(command == 12){
+                int width, length, id;
+                width = scanner.nextInt();
+                length = scanner.nextInt();
+                id = scanner.nextInt();
+                upd.UpdateHall(width, length, id);
+                audit.WriteToAudit("A hall has been updated");
+            }
+            if(command == 13){
+                int budget, id;
+                budget = scanner.nextInt();
+                id = scanner.nextInt();
+                upd.UpdateEvent(budget, id);
+                audit.WriteToAudit("An event has been updated");
+            }
+            if(command == 14){
+                rd.readStudent();
+                audit.WriteToAudit("The students have been printed");
+            }
+            if(command == 15){
+                rd.readEmployee();
+                audit.WriteToAudit("The employees have been printed");
+            }
+            if(command == 16){
+                rd.readHall();
+                audit.WriteToAudit("The halls have been printed");
+            }
+            if(command == 17){
+                rd.readEvent();
+                audit.WriteToAudit("The events have been printed");
+            }
+            if(command == 18){
+                int id;
+                id = scanner.nextInt();
+                dl.deleteStudent(id);
+                audit.WriteToAudit("A student has been deleted");
+            }
+            if(command == 19){
+                int id;
+                id = scanner.nextInt();
+                dl.deleteEmployee(id);
+                audit.WriteToAudit("An employee has been deleted");
+            }
+            if(command == 20){
+                int id;
+                id = scanner.nextInt();
+                dl.deleteHall(id);
+                audit.WriteToAudit("A hall has been deleted");
+            }
+            if(command == 21){
+                int id;
+                id = scanner.nextInt();
+                dl.deleteEvent(id);
+                audit.WriteToAudit("An event has been deleted");
+            }
+            if(command == 22){
+                 break;
+            }
         }
-        catch(InsufficientFundsException e){
-            System.out.println("Ai nevoie de " + e.getAmount());
-        }
-        System.out.print("Fondul de salarii lunar al scolii este: ");
-        System.out.println(scoala.totalWage());
 
-        System.out.print("Bugetul anual al scolii ar trebui sa fie: ");
-        System.out.println(scoala.RequiredBudget());
-
-        System.out.println(scoala.NecessaryFunds());
-
+        conn.close();
+        System.out.println("Am inchis conexiunea");
 
     }
+
+
 }
